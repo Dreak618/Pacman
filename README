@@ -1,0 +1,11 @@
+How to play: 
+Click ‘start’ to Start!
+
+You play as Pac-man (The yellow circular guy), and your goal is to achieve the highest score possible by collecting pellets and eating ghosts. Be careful, however, as you cannot eat the ghosts unless you have recently consumed a power pellet (the big ones). If you do so, the ghost will respawn in ten seconds, so use your time wisely. If you touch a ghost while not under the effect of a power pellet, you die, and the game ends. If you eat all the pellets on the map, you will advance to the next level and have the opportunity to earn more points (and collect more power pellets to fend off the ghosts). 
+
+To control Pac-man, use the arrow keys to change direction. Avoid the ghosts, collect as many pellets as possible, and shoot for a high score! 
+
+Scoring:
+Ghosts are worth 200 points each (when under the effect of a power pellet)
+Power Pellets are worth 50 points each
+Regular pellets worth 10 points each
