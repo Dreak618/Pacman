@@ -1,9 +1,13 @@
 package Pacman.MainComponents;
 
-import java.awt.*;
+import java.awt.Graphics;
+import java.awt.Image;
 import java.util.Random;
+
+import javax.swing.ImageIcon;
+import javax.swing.JPanel;
+
 import Pacman.Panels.MapPanel;
-import javax.swing.*;
 
 public class Ghost extends JPanel {
 
@@ -16,12 +20,12 @@ public class Ghost extends JPanel {
   private boolean alive = true;
   private int deathTimer = 500;
   private String name;
-  private ImageIcon red = new ImageIcon("Pacman/Assets/red_ghost.png"), resizedRed;
-  private ImageIcon blue = new ImageIcon("Pacman/Assets/blue_ghost.png"), resizedBlue;
-  private ImageIcon pink = new ImageIcon("Pacman/Assets/pink_ghost.png"), resizedPink;
-  private ImageIcon orange = new ImageIcon("Pacman/Assets/orange_ghost.png"), resizedOrange;
-  private ImageIcon edible = new ImageIcon("Pacman/Assets/edible_ghost.png"), resizedEdible;
-  private ImageIcon dead = new ImageIcon("Pacman/Assets/dead_ghost.png"), resizedDead;
+  private ImageIcon red = new ImageIcon("Pacman/Assets/Ghosts/red_ghost.png"), resizedRed;
+  private ImageIcon blue = new ImageIcon("Pacman/Assets/Ghosts/blue_ghost.png"), resizedBlue;
+  private ImageIcon pink = new ImageIcon("Pacman/Assets/Ghosts/pink_ghost.png"), resizedPink;
+  private ImageIcon orange = new ImageIcon("Pacman/Assets/Ghosts/orange_ghost.png"), resizedOrange;
+  private ImageIcon edible = new ImageIcon("Pacman/Assets/Ghosts/edible_ghost.png"), resizedEdible;
+  private ImageIcon dead = new ImageIcon("Pacman/Assets/Ghosts/dead_ghost.png"), resizedDead;
 
   // Constructor
   public Ghost(String name, int x1, int x2, int y1, int y2, MapPanel map) {
@@ -45,7 +49,7 @@ public class Ghost extends JPanel {
     if (!c.alive) {
       g.drawImage(resizedDead.getImage(), c.gLoc[0], c.gLoc[2], this);
     } else {
-      if (map.getConsumptionMode()){
+      if (map.getConsumptionMode()) {
         g.drawImage(resizedEdible.getImage(), c.gLoc[0], c.gLoc[2], this);
       } else {
         if (c.name.equals("red")) {
@@ -60,7 +64,7 @@ public class Ghost extends JPanel {
         }
       }
     }
-   
+
   }
 
   // move method
@@ -154,6 +158,7 @@ public class Ghost extends JPanel {
       }
     }
   }
+
   public ImageIcon resizeImage(ImageIcon img) {
     Image image = img.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
     ImageIcon resized = new ImageIcon(image);

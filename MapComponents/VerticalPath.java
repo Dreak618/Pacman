@@ -1,15 +1,16 @@
 package Pacman.MapComponents;
 
-//creates a vertical path
+/**
+ * Creates a vertical path
+ */
 public class VerticalPath extends Path {
-    //constructor for vertical path
     public VerticalPath(int x, int y, int rectLength) {
-        super(x, y,rectLength);
-        this.width = unitWidth; //sets the width of the path to the unit width
-        this.height = rectLength * unitWidth; //sets the height to be the length of the rectangle
-        
-        //sets the end coordinates of the path
-        this.x2= x1 + unitWidth;
+        super(x, y, rectLength);
+        this.width = unitWidth; // sets the width of the path to the unit width
+        this.height = rectLength * unitWidth; // sets the height to be the length of the rectangle
+
+        // sets the end coordinates of the path
+        this.x2 = x1 + unitWidth;
         this.y2 = y1 + (rectLength * unitWidth);
     }
 }

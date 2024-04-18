@@ -1,20 +1,31 @@
 package Pacman.MainComponents;
 
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import Pacman.MapComponents.*;
-import Pacman.Panels.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import javax.swing.Timer;
-import java.awt.Dimension;
-import java.awt.BorderLayout;
-import javax.sound.sampled.*;
-import java.io.File;
-import java.io.IOException;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+import Pacman.MapComponents.Path;
+import Pacman.MapComponents.PointPellet;
+import Pacman.MapComponents.PowerPellet;
+import Pacman.Panels.EndPanel;
+import Pacman.Panels.MapPanel;
+import Pacman.Panels.StartScreen;
+import Pacman.Panels.TopPanel;
 
 public class Pacman extends JPanel implements KeyListener {
     private int score = 0;
@@ -111,7 +122,7 @@ public class Pacman extends JPanel implements KeyListener {
                 // does player movement();
                 playerMovement();
 
-                for(Ghost g : ((MapPanel) displayPanel).getGhosts()){
+                for (Ghost g : ((MapPanel) displayPanel).getGhosts()) {
                     g.move();
                 }
                 ((MapPanel) displayPanel).ghostDeathStuff();
@@ -138,7 +149,6 @@ public class Pacman extends JPanel implements KeyListener {
             }
         }
     }
-
 
     // sets the display type of the display panel depending on the level
     public void setLevel(int levelNumber) {
@@ -287,7 +297,7 @@ public class Pacman extends JPanel implements KeyListener {
         }
     }
 
-    public boolean getConsumptionMode(){
+    public boolean getConsumptionMode() {
         return consumptionMode;
     }
 
@@ -302,30 +312,29 @@ public class Pacman extends JPanel implements KeyListener {
     private void loadSounds() {
         try {
             AudioInputStream startSound = AudioSystem
-                    .getAudioInputStream(new File("Pacman/Assets/pacman_beginning.wav"));
+                    .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_beginning.wav"));
             startSoundClip = AudioSystem.getClip();
             startSoundClip.open(startSound);
 
-            AudioInputStream deathSound = AudioSystem.getAudioInputStream(new File("Pacman/Assets/pacman_death.wav"));
+            AudioInputStream deathSound = AudioSystem
+                    .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_death.wav"));
             deathSoundClip = AudioSystem.getClip();
             deathSoundClip.open(deathSound);
 
-            AudioInputStream chompSound = AudioSystem.getAudioInputStream(new File("Pacman/Assets/pacman_chomp.wav"));
+            AudioInputStream chompSound = AudioSystem
+                    .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_chomp.wav"));
             chompSoundClip = AudioSystem.getClip();
             chompSoundClip.open(chompSound);
 
-            AudioInputStream startMusic = AudioSystem.getAudioInputStream(
-                    new File("Pacman/Assets/02 Retro Platforming.wav"));
+            AudioInputStream startMusic = AudioSystem.getAudioInputStream(new File("Pacman/Assets/Music/Start.wav"));
             startScreenMusic = AudioSystem.getClip();
             startScreenMusic.open(startMusic);
 
-            AudioInputStream gameMusic = AudioSystem.getAudioInputStream(
-                    new File("Pacman/Assets/03 A Bit Of Hope 1.wav"));
+            AudioInputStream gameMusic = AudioSystem.getAudioInputStream(new File("Pacman/Assets/Music/Gameplay.wav"));
             gameScreenMusic = AudioSystem.getClip();
             gameScreenMusic.open(gameMusic);
 
-            AudioInputStream gameOver = AudioSystem.getAudioInputStream(
-                    new File("Pacman/Assets/Funny Bit.wav"));
+            AudioInputStream gameOver = AudioSystem.getAudioInputStream(new File("Pacman/Assets/Music/GameOver.wav"));
             deathScreenMusic = AudioSystem.getClip();
             deathScreenMusic.open(gameOver);
 
@@ -448,22 +457,23 @@ public class Pacman extends JPanel implements KeyListener {
 
     // controls player movement
     public void playerMovement() {
-        //gets the buffer direction and current direction
+        // gets the buffer direction and current direction
         String currentDirection = player.getDirection();
         String direction = player.getBufferDirection();
 
-        //sets the direction to the buffer direction if it is not empty
-        //and checks if the player can move in that direction
-        //and if it can moves the player
+        // sets the direction to the buffer direction if it is not empty
+        // and checks if the player can move in that direction
+        // and if it can moves the player
 
         player.setDirection(direction);
         if (checkPathCollision(player.getPlayerCoordinates(), player.getPlayerSpeed()) && !direction.equals("")) {
             player.move();
             player.setBufferDirection("");
         } else {
-            //if the player cannot move in the buffer direction it sets the direction to the current direction
-            //and checks if the player can move in that direction
-            //and if it can moves the player
+            // if the player cannot move in the buffer direction it sets the direction to
+            // the current direction
+            // and checks if the player can move in that direction
+            // and if it can moves the player
             player.setDirection(currentDirection);
             if (checkPathCollision(player.getPlayerCoordinates(), player.getPlayerSpeed())) {
                 player.move();
