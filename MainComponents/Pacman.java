@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 
 import javax.sound.sampled.AudioInputStream;
@@ -19,7 +20,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import Pacman.MapComponents.Path;
 import Pacman.MapComponents.PointPellet;
 import Pacman.MapComponents.PowerPellet;
 import Pacman.Panels.EndPanel;
@@ -72,6 +72,8 @@ public class Pacman extends JPanel implements KeyListener {
 
         // sets up sounds
         loadSounds();
+
+        // TODO look what this does
         f.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
