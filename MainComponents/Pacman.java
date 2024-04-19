@@ -6,15 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -30,22 +23,13 @@ import Pacman.Panels.TopPanel;
 public class Pacman extends JPanel implements KeyListener {
     private int score = 0;
     private Player player;
-    // timer for the game
-    protected Timer timer = new Timer(20, new TimerCallback());;
+    protected Timer timer = new Timer(20, new TimerCallback());// timer for the game
     private TopPanel top;
     private JPanel canvas;
     private JPanel displayPanel;
     private ArrayList<Path> paths = new ArrayList<>();
-    private Clip startSoundClip;
-    private Clip deathSoundClip;
-    private Clip chompSoundClip;
-    private Clip startScreenMusic;
-    private Clip gameScreenMusic;
-    private Clip deathScreenMusic;
-    private boolean isChompPlaying = false;
     private boolean consumptionMode = false;
-    // length of time that consumption mode lasts
-    private int consumptionTime = 500;
+    private int consumptionTime = 500; // length of time that consumption mode lasts
     private int consumptionTimer = consumptionTime;
     private MusicManager musicManager;
 
@@ -71,17 +55,6 @@ public class Pacman extends JPanel implements KeyListener {
         // sets up the canvas the game is on
         canvas = new JPanel();
         canvas.setLayout(new BorderLayout());
-
-        // sets up sounds
-        // loadSounds();
-
-        // TODO look what this does
-        f.addWindowListener(new java.awt.event.WindowAdapter() {
-            @Override
-            public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                // stopSounds();
-            }
-        });
 
         // creates and adds the top panel to the canvas which will include the
         // scoreboard
@@ -140,7 +113,6 @@ public class Pacman extends JPanel implements KeyListener {
                         top.setScore(score);
                         // remove ghost or stuff NYI
                     } else {
-                        playDeathSound();
                         setLevel(2);
                     }
                 }
@@ -148,10 +120,7 @@ public class Pacman extends JPanel implements KeyListener {
             // checks if currently viewing the end panel and if so stards the death music
             // and stops timer
             if (displayPanel instanceof EndPanel) {
-                if (!deathSoundClip.isActive() && !deathScreenMusic.isActive()) {
-                    playDeathMusic();
-                    timer.stop();
-                }
+                timer.stop();
             }
         }
     }
@@ -201,12 +170,6 @@ public class Pacman extends JPanel implements KeyListener {
         MapPanel mapPanel = new MapPanel(this);
         displayPanel = mapPanel;
 
-        // starts and stops music
-        stopStartMusic();
-        stopDeathMusic();
-        playStartSound();
-        startChompSound();
-
         // sets top panel state to 1
         top.setPanelState(1);
 
@@ -230,6 +193,7 @@ public class Pacman extends JPanel implements KeyListener {
     // starts level 2 including making the display panel an end screen
     private void startLevel2() {
         musicManager.playDeathSounds();
+
         // makes the display panel a new end panel
         displayPanel = new EndPanel(this);
 
@@ -316,130 +280,6 @@ public class Pacman extends JPanel implements KeyListener {
 
     public void setScore(int score) {
         this.score = score;
-    }
-
-    private void loadSounds() {
-        try {
-            AudioInputStream startSound = AudioSystem
-                    .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_beginning.wav"));
-            startSoundClip = AudioSystem.getClip();
-            startSoundClip.open(startSound);
-
-            AudioInputStream deathSound = AudioSystem
-                    .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_death.wav"));
-            deathSoundClip = AudioSystem.getClip();
-            deathSoundClip.open(deathSound);
-
-            AudioInputStream chompSound = AudioSystem
-                    .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_chomp.wav"));
-            chompSoundClip = AudioSystem.getClip();
-            chompSoundClip.open(chompSound);
-
-            AudioInputStream startMusic = AudioSystem.getAudioInputStream(new File("Pacman/Assets/Music/Start.wav"));
-            startScreenMusic = AudioSystem.getClip();
-            startScreenMusic.open(startMusic);
-
-            AudioInputStream gameMusic = AudioSystem.getAudioInputStream(new File("Pacman/Assets/Music/Gameplay.wav"));
-            gameScreenMusic = AudioSystem.getClip();
-            gameScreenMusic.open(gameMusic);
-
-            AudioInputStream gameOver = AudioSystem.getAudioInputStream(new File("Pacman/Assets/Music/GameOver.wav"));
-            deathScreenMusic = AudioSystem.getClip();
-            deathScreenMusic.open(gameOver);
-
-        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void playStartSound() {
-        if (startSoundClip != null) {
-            startSoundClip.setFramePosition(0);
-            startSoundClip.start();
-        }
-    }
-
-    private void playStartMusic() {
-        if (startScreenMusic != null) {
-            startScreenMusic.setFramePosition(0);
-            startScreenMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            startScreenMusic.start();
-        }
-    }
-
-    private void playGameMusic() {
-        if (gameScreenMusic != null) {
-            gameScreenMusic.setFramePosition(0);
-            gameScreenMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            gameScreenMusic.start();
-        }
-    }
-
-    private void playDeathMusic() {
-        if (deathScreenMusic != null) {
-            deathScreenMusic.setFramePosition(0);
-            deathScreenMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            deathScreenMusic.start();
-        }
-    }
-
-    private void playDeathSound() {
-        if (deathSoundClip != null) {
-            deathSoundClip.setFramePosition(0);
-            deathSoundClip.start();
-            // Stop the chomp sound and game music when Pacman dies
-            stopChompSound();
-            stopGameMusic();
-        }
-    }
-
-    private void startChompSound() {
-        if (chompSoundClip != null && !isChompPlaying) {
-            chompSoundClip.loop(Clip.LOOP_CONTINUOUSLY);
-            isChompPlaying = true;
-        }
-    }
-
-    private void stopChompSound() {
-        if (chompSoundClip != null) {
-            chompSoundClip.stop();
-            isChompPlaying = false;
-        }
-    }
-
-    private void stopGameMusic() {
-        if (gameScreenMusic != null) {
-            gameScreenMusic.stop();
-        }
-    }
-
-    private void stopStartMusic() {
-        if (startScreenMusic != null) {
-            startScreenMusic.stop();
-        }
-    }
-
-    private void stopDeathMusic() {
-        if (deathScreenMusic != null) {
-            deathScreenMusic.stop();
-        }
-    }
-
-    private void stopSounds() {
-        if (startSoundClip != null) {
-            startSoundClip.close();
-        }
-        if (startScreenMusic != null) {
-            startScreenMusic.close();
-        }
-        if (deathSoundClip != null) {
-            deathSoundClip.close();
-        }
-        if (gameScreenMusic != null) {
-            startScreenMusic.close();
-        }
-        // Stop the chomp sound when stopping all sounds
-        stopChompSound();
     }
 
     // Key handling
