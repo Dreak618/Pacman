@@ -73,66 +73,68 @@ public class Pacman extends JPanel implements KeyListener {
     // game timer
     private class TimerCallback implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-
+            MapPanel panel = (MapPanel) displayPanel;
             // checks if currently viewing the map panel
-            if (displayPanel instanceof MapPanel) {
-                if (!musicManager.playedStartup == false) {
-                    musicManager.playGameSounds();
-                }
-                // checks if the player is in consumption mode and if so counts down the timer
-                if (consumptionMode) {
-                    consumptionTimer--;
-                    if (consumptionTimer == 0) {
-                        consumptionMode = false;
-                        consumptionTimer = consumptionTime;
-                        top.setConsumptionMode(consumptionMode);
-                    }
-                }
-                // plays game music if it is not already playing
-                // if (!startSoundClip.isRunning() && !gameScreenMusic.isRunning()) {
-                // playGameMusic();
-                // }
-                // repaints the map
-                displayPanel.repaint();
 
-                // checks if player is colliding with a pellet and if so eats them
-                checkPelletCollision(player.getPlayerCoordinates());
-
-                // does player movement();
-                playerMovement();
-
-                for (Ghost g : ((MapPanel) displayPanel).getGhosts()) {
-                    g.move();
-                }
-                ((MapPanel) displayPanel).ghostDeathStuff();
-                // check if player collides with a ghost
-                if (((MapPanel) displayPanel).checkGhostCollision(player.getPlayerCoordinates())) {
-                    // if in consumption mode eats ghost otherwise dies
-                    if (consumptionMode) {
-                        score += 200;
-                        top.setScore(score);
-                        // remove ghost or stuff NYI
-                    } else {
-                        setLevel(2);
-                    }
+            if (!musicManager.playedStartup == false) {
+                musicManager.playGameSounds();
+            }
+            // checks if the player is in consumption mode and if so counts down the timer
+            if (consumptionMode) {
+                consumptionTimer--;
+                if (consumptionTimer == 0) {
+                    consumptionMode = false;
+                    consumptionTimer = consumptionTime;
+                    top.setConsumptionMode(consumptionMode);
                 }
             }
-            // checks if currently viewing the end panel and if so stards the death music
-            // and stops timer
-            if (displayPanel instanceof EndPanel) {
-                timer.stop();
+            // repaints the map
+            displayPanel.repaint();
+
+            // checks if player is colliding with a pellet and if so eats them
+            checkPelletCollision(player.getPlayerCoordinates());
+
+            // does player movement();
+            playerMovement();
+
+            for (Ghost g : ((MapPanel) displayPanel).getGhosts()) {
+                g.move();
+            }
+            ((MapPanel) displayPanel).ghostDeathStuff();
+            // check if player collides with a ghost
+            if (((MapPanel) displayPanel).checkGhostCollision(player.getPlayerCoordinates())) {
+                // if in consumption mode eats ghost otherwise dies
+                if (consumptionMode) {
+                    score += 200;
+                    top.setScore(score);
+                    // remove ghost or stuff NYI
+                } else {
+                    setLevel(2);
+                }
             }
         }
     }
 
+    public void level0Callback() {
+
+    }
+
+    public void level1Callback() {
+
+    }
+
+    public void level2Callback() {
+
+    }
+
     // sets the display type of the display panel depending on the level
-    public void setLevel(int levelNumber) {
+    public void setLevel(int level) {
         // removes the old display panel if there is one
         if (displayPanel != null) {
             canvas.remove(displayPanel);
         }
         // starts level based on level number
-        switch (levelNumber) {
+        switch (level) {
             case 0:
                 startLevel0();
                 break;
@@ -152,8 +154,6 @@ public class Pacman extends JPanel implements KeyListener {
     // start screen
     private void startLevel0() {
         musicManager.playStartScreenSounds();
-        // starts starter music
-        // playStartMusic();
 
         // makes the display panel a new start screen
         displayPanel = new StartScreen();
@@ -192,6 +192,7 @@ public class Pacman extends JPanel implements KeyListener {
 
     // starts level 2 including making the display panel an end screen
     private void startLevel2() {
+        timer.stop();
         musicManager.playDeathSounds();
 
         // makes the display panel a new end panel
@@ -331,10 +332,8 @@ public class Pacman extends JPanel implements KeyListener {
     }
 
     public void keyTyped(KeyEvent e) {
-        // Not needed
-    }
+    } // not used
 
     public void keyReleased(KeyEvent e) {
-        // Not needed
-    }
+    }// not used
 }
