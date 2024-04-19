@@ -76,7 +76,7 @@ public class Pacman extends JPanel implements KeyListener {
             MapPanel panel = (MapPanel) displayPanel;
             // checks if currently viewing the map panel
 
-            if (!musicManager.playedStartup == false) {
+            if (!musicManager.playedStartup) {
                 musicManager.playGameSounds();
             }
             // checks if the player is in consumption mode and if so counts down the timer

@@ -10,7 +10,7 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class MusicManager {
-    public boolean playedStartup = true;
+    public boolean playedStartup = false;
     private boolean playingStartup = false;
     private Clip startupClip, deathClip, chompClip, startMusic, gameplayMusic, gameOverMusic;
 
@@ -81,7 +81,6 @@ public class MusicManager {
         if (!playingStartup) {
             stopSounds();
             startupClip.start();
-            playedStartup = false;
             playingStartup = true;
         }
     }
@@ -94,6 +93,7 @@ public class MusicManager {
     }
 
     protected void stopSounds() {
+        playedStartup = false;
         startMusic.stop();
         startupClip.stop();
         gameplayMusic.stop();
