@@ -8,7 +8,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 import javax.sound.sampled.AudioInputStream;
@@ -20,6 +19,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import Pacman.MapComponents.Path;
 import Pacman.MapComponents.PointPellet;
 import Pacman.MapComponents.PowerPellet;
 import Pacman.Panels.EndPanel;
@@ -47,6 +47,7 @@ public class Pacman extends JPanel implements KeyListener {
     // length of time that consumption mode lasts
     private int consumptionTime = 500;
     private int consumptionTimer = consumptionTime;
+    private MusicManager musicManager;
 
     public static void main(String[] args) {
         // creates new frame
@@ -63,6 +64,7 @@ public class Pacman extends JPanel implements KeyListener {
     }
 
     public Pacman(JFrame f) {
+        musicManager = new MusicManager();
         f.addKeyListener(this);
         f.setFocusable(true);
 
@@ -71,13 +73,13 @@ public class Pacman extends JPanel implements KeyListener {
         canvas.setLayout(new BorderLayout());
 
         // sets up sounds
-        loadSounds();
+        // loadSounds();
 
         // TODO look what this does
         f.addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-                stopSounds();
+                // stopSounds();
             }
         });
 
@@ -101,7 +103,9 @@ public class Pacman extends JPanel implements KeyListener {
 
             // checks if currently viewing the map panel
             if (displayPanel instanceof MapPanel) {
-
+                if (!musicManager.playedStartup == false) {
+                    musicManager.playGameSounds();
+                }
                 // checks if the player is in consumption mode and if so counts down the timer
                 if (consumptionMode) {
                     consumptionTimer--;
@@ -112,9 +116,9 @@ public class Pacman extends JPanel implements KeyListener {
                     }
                 }
                 // plays game music if it is not already playing
-                if (!startSoundClip.isRunning() && !gameScreenMusic.isRunning()) {
-                    playGameMusic();
-                }
+                // if (!startSoundClip.isRunning() && !gameScreenMusic.isRunning()) {
+                // playGameMusic();
+                // }
                 // repaints the map
                 displayPanel.repaint();
 
@@ -178,8 +182,9 @@ public class Pacman extends JPanel implements KeyListener {
     // starts level 0 including starting the music and making the display panel a
     // start screen
     private void startLevel0() {
+        musicManager.playStartScreenSounds();
         // starts starter music
-        playStartMusic();
+        // playStartMusic();
 
         // makes the display panel a new start screen
         displayPanel = new StartScreen();
@@ -191,6 +196,7 @@ public class Pacman extends JPanel implements KeyListener {
     // starts level 1 including generating the map, player, and ghosts as well as
     // starting the music
     private void startLevel1() {
+        musicManager.playGameSounds();
         // makes the display panel a new map panel
         MapPanel mapPanel = new MapPanel(this);
         displayPanel = mapPanel;
@@ -223,6 +229,7 @@ public class Pacman extends JPanel implements KeyListener {
 
     // starts level 2 including making the display panel an end screen
     private void startLevel2() {
+        musicManager.playDeathSounds();
         // makes the display panel a new end panel
         displayPanel = new EndPanel(this);
 

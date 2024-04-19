@@ -10,11 +10,9 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class MusicManager {
+    public boolean playedStartup = true;
+    private boolean playingStartup = false;
     private Clip startupClip, deathClip, chompClip, startMusic, gameplayMusic, gameOverMusic;
-    private Clip chompSoundClip;
-    private Clip startScreenMusic;
-    private Clip gameScreenMusic;
-    private Clip deathScreenMusic;
 
     public MusicManager() {
         loadSounds();
@@ -29,13 +27,13 @@ public class MusicManager {
     protected void loadSounds() {
         try {
             // Get all AudioStreams
-            AudioInputStream startupStream = AudioSystem
+            AudioInputStream startupGameStream = AudioSystem
                     .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_beginning.wav"));
             AudioInputStream deathStream = AudioSystem
                     .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_death.wav"));
             AudioInputStream chompStream = AudioSystem
                     .getAudioInputStream(new File("Pacman/Assets/SoundEffects/pacman_chomp.wav"));
-            AudioInputStream startStream = AudioSystem
+            AudioInputStream startScreenStream = AudioSystem
                     .getAudioInputStream(new File("Pacman/Assets/Music/Start.wav"));
             AudioInputStream gameplayStream = AudioSystem
                     .getAudioInputStream(new File("Pacman/Assets/Music/Gameplay.wav"));
@@ -43,133 +41,64 @@ public class MusicManager {
                     .getAudioInputStream(new File("Pacman/Assets/Music/GameOver.wav"));
 
             // Make an array of all the streams and clips
-            AudioInputStream[] inputStreams = { startupStream, deathStream, chompStream, startStream, gameplayStream,
-                    gameOverStream };
-            Clip[] clips = { startupClip, deathClip, chompClip, startMusic, gameplayMusic, gameOverMusic };
+            startupClip = AudioSystem.getClip();
+            deathClip = AudioSystem.getClip();
+            chompClip = AudioSystem.getClip();
+            startMusic = AudioSystem.getClip();
+            gameplayMusic = AudioSystem.getClip();
+            gameOverMusic = AudioSystem.getClip();
 
-            // Have clips open the corresponding streams
-            for (int i = 0; i < clips.length; i++) {
-                clips[i] = AudioSystem.getClip();
-                clips[i].open(inputStreams[i]);
-            }
-
-            // Set the music clips and chomp to loop continuously
-            startMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            gameplayMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            gameOverMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            chompSoundClip.loop(Clip.LOOP_CONTINUOUSLY);
+            startupClip.open(startupGameStream);
+            deathClip.open(deathStream);
+            chompClip.open(chompStream);
+            startMusic.open(startScreenStream);
+            gameplayMusic.open(gameplayStream);
+            gameOverMusic.open(gameOverStream);
 
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
         }
     }
 
-    protected void playStartupSounds() {
-        startupClip.start();
-    }
-
-    protected void stopStartupSounds() {
-        startupClip.stop();
+    protected void playStartScreenSounds() {
+        startMusic.start();
+        startMusic.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
     protected void playGameSounds() {
-        chompClip.start();
-        gameplayMusic.start();
+        playStartup();
+        if (!startupClip.isActive()) {
+            chompClip.start();
+            chompClip.loop(Clip.LOOP_CONTINUOUSLY);
+            gameplayMusic.start();
+            gameplayMusic.loop(Clip.LOOP_CONTINUOUSLY);
+            playedStartup = true;
+            playingStartup = false;
+        }
     }
 
-    protected void stopGameSounds() {
-        chompClip.stop();
-        gameplayMusic.stop();
+    public void playStartup() {
+        if (!playingStartup) {
+            stopSounds();
+            startupClip.start();
+            playedStartup = false;
+            playingStartup = true;
+        }
     }
 
     protected void playDeathSounds() {
+        stopSounds();
         deathClip.start();
-        deathScreenMusic.start();
+        gameOverMusic.start();
+        gameOverMusic.loop(Clip.LOOP_CONTINUOUSLY);
     }
 
-    protected void stopDeathSounds() {
+    protected void stopSounds() {
+        startMusic.stop();
+        startupClip.stop();
+        gameplayMusic.stop();
+        chompClip.stop();
         deathClip.stop();
-        deathScreenMusic.stop();
+        gameOverMusic.stop();
     }
-
-    protected void playStartMusic() {
-        // startScreenMusic.setFramePosition(0);
-        startScreenMusic.start();
-    }
-
-    protected void playGameMusic() {
-        if (gameScreenMusic != null) {
-            gameScreenMusic.setFramePosition(0);
-            gameScreenMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            gameScreenMusic.start();
-        }
-    }
-
-    protected void playDeathMusic() {
-        if (deathScreenMusic != null) {
-            deathScreenMusic.setFramePosition(0);
-            deathScreenMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            deathScreenMusic.start();
-        }
-    }
-
-    protected void playDeathSound() {
-        if (deathSoundClip != null) {
-            deathSoundClip.setFramePosition(0);
-            deathSoundClip.start();
-            // Stop the chomp sound and game music when Pacman dies
-            stopChompSound();
-            stopGameMusic();
-        }
-    }
-
-    protected void startChompSound() {
-        if (chompSoundClip != null && !isChompPlaying) {
-            chompSoundClip.loop(Clip.LOOP_CONTINUOUSLY);
-            isChompPlaying = true;
-        }
-    }
-
-    protected void stopChompSound() {
-        if (chompSoundClip != null) {
-            chompSoundClip.stop();
-            isChompPlaying = false;
-        }
-    }
-
-    protected void stopGameMusic() {
-        if (gameScreenMusic != null) {
-            gameScreenMusic.stop();
-        }
-    }
-
-    protected void stopStartMusic() {
-        if (startScreenMusic != null) {
-            startScreenMusic.stop();
-        }
-    }
-
-    protected void stopDeathMusic() {
-        if (deathScreenMusic != null) {
-            deathScreenMusic.stop();
-        }
-    }
-
-    private void stopSounds() {
-        if (startSoundClip != null) {
-            startSoundClip.close();
-        }
-        if (startScreenMusic != null) {
-            startScreenMusic.close();
-        }
-        if (deathSoundClip != null) {
-            deathSoundClip.close();
-        }
-        if (gameScreenMusic != null) {
-            startScreenMusic.close();
-        }
-        // Stop the chomp sound when stopping all sounds
-        stopChompSound();
-    }
-
 }
