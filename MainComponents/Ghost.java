@@ -5,15 +5,13 @@ import java.awt.Image;
 import java.util.Random;
 
 import javax.swing.ImageIcon;
-import javax.swing.JPanel;
 
 import Pacman.Panels.MapPanel;
 
-public abstract class Ghost extends JPanel {
+public abstract class Ghost extends GameComponent {
 
   private Random RNJesus = new Random(4);
   private int width = 20;
-  protected int radius;
   protected MapPanel map;
   protected int[] gLoc = new int[4]; // ghost location coords
   protected int direction;
@@ -152,14 +150,18 @@ public abstract class Ghost extends JPanel {
     return resized;
   }
 
+  // TODO fix this
+  @Override
   public int getX() {
     return gLoc[0] + radius;
   }
 
+  @Override
   public int getY() {
     return gLoc[2] + radius;
   }
 
+  @Override
   public int getRadius() {
     return radius;
   }

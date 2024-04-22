@@ -23,12 +23,6 @@ public class PointPellet extends MapComponent {
         this.y2 = y1 + width;
     }
 
-    // get the width of the pellet
-    @Override
-    public int getWidth() {
-        return width;
-    }
-
     // draw the pellet
     public void draw(Graphics g) {
         g.setColor(Color.WHITE);

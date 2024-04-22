@@ -1,12 +1,12 @@
 package Pacman.MapComponents;
 
-import javax.swing.JPanel;
+import Pacman.MainComponents.GameComponent;
 
 //general class for all map components
 //allows for easily moving all map components if needed and resizing them all
-public class MapComponent extends JPanel {
+public class MapComponent extends GameComponent {
     protected int unitWidth = 20;// width of each unit in the map
-    protected int x1, y1, x2, y2, x, y, radius;
+    protected int x1, y1, x2, y2;
 
     // constructor for map components
     public MapComponent(int x1, int y1) {
@@ -37,17 +37,5 @@ public class MapComponent extends JPanel {
 
     public int getWidth() {
         return unitWidth;
-    }
-
-    public int getRadius() {
-        return this.radius;
-    }
-
-    public int getX() {
-        return this.x;
-    }
-
-    public int getY() {
-        return this.y;
     }
 }

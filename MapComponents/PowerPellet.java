@@ -20,6 +20,7 @@ public class PowerPellet extends PointPellet {
         this.y1 -= width / 4;
         this.x2 = x1 + width;
         this.y2 = y1 + width;
+        this.radius = width / 2;
     }
 
     @Override

@@ -4,10 +4,9 @@ import java.awt.Graphics;
 import java.awt.Image;
 
 import javax.swing.ImageIcon;
-import javax.swing.JPanel;
 
 //Player class
-public class Player extends JPanel {
+public class Player extends GameComponent {
     private ImageIcon pacRight = new ImageIcon("Pacman/Assets/Player/pacRight.png"), resizedRight;
     private ImageIcon pacLeft = new ImageIcon("Pacman/Assets/Player/pacLeft.png"), resizedLeft;
     private ImageIcon pacUp = new ImageIcon("Pacman/Assets/Player/pacUp.png"), resizedUp;
@@ -15,7 +14,6 @@ public class Player extends JPanel {
     private int x1, x2, y1, y2, speed, deltaX, deltaY, tWidth, tempDeltaX, tempDeltaY;
     private String direction = "";
     private String bufferDirection = "";
-    private int x, y, radius;
 
     public Player(int x, int y, int width, int speed) { // Defines starting parameters of character
         this.radius = width / 2;
@@ -152,15 +150,4 @@ public class Player extends JPanel {
         }
     }
 
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public int getRadius() {
-        return radius;
-    }
 }

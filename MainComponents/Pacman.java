@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
-import Pacman.MapComponents.MapComponent;
 import Pacman.MapComponents.Path;
 import Pacman.MapComponents.PointPellet;
 import Pacman.Panels.EndPanel;
@@ -54,10 +53,6 @@ public class Pacman extends JPanel implements KeyListener {
      */
     public Pacman() {
         JFrame f = new JFrame("Pacman 2");
-        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.setPreferredSize(new Dimension(500, 600));
-        f.setResizable(false);
-        f.pack();
         musicManager = new MusicManager();
         timer = new Timer(20, new TimerCallback());
         top = new TopPanel(this);
@@ -65,6 +60,10 @@ public class Pacman extends JPanel implements KeyListener {
         canvas.setLayout(new BorderLayout());
         canvas.add(top, BorderLayout.NORTH);
         setLevel(0);
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setPreferredSize(new Dimension(500, 600));
+        f.setResizable(false);
+        f.pack();
         f.addKeyListener(this);
         f.setFocusable(true);
         f.add(canvas);
@@ -93,7 +92,7 @@ public class Pacman extends JPanel implements KeyListener {
             displayPanel.repaint();
 
             // checks if player is colliding with a pellet and if so eats them
-            pelletCollision(player.getCoordinates());
+            pelletCollision();
 
             // does player movement();
             playerMovement();
@@ -210,18 +209,7 @@ public class Pacman extends JPanel implements KeyListener {
         return false;
     }
 
-    public boolean checkCollision(MapComponent c1, Player c2) {
-        int distance = c1.getRadius() + c2.getRadius();
-        int dx = c1.getX() - c2.getX();
-        int dy = c1.getY() - c2.getY();
-        if (dx * dx + dy * dy < distance * distance) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean checkCollision(Player c1, Ghost c2) {
+    public boolean checkCollision(GameComponent c1, GameComponent c2) {
         int distance = c1.getRadius() + c2.getRadius();
         int dx = c1.getX() - c2.getX();
         int dy = c1.getY() - c2.getY();
@@ -233,20 +221,16 @@ public class Pacman extends JPanel implements KeyListener {
     }
 
     // checks if player is colliding with pellets
-    public void pelletCollision(int[] playerPosition) {
+    public void pelletCollision() {
         ArrayList<PointPellet> pellets = ((MapPanel) displayPanel).getPellets();
-        if (pellets == null) {
-            return;
-        }
         for (int i = 0; i < pellets.size(); i++) {
             PointPellet p = pellets.get(i);
-            if (checkCollision(p, player)) {
+            if (player.collision(p)) {
                 score += p.consume(this);
                 pellets.remove(i);
                 top.setScore(score);
             }
         }
-
         if (pellets.size() == 0) {
             setLevel(1);
         }
