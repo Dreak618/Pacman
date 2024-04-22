@@ -46,8 +46,12 @@ public abstract class Ghost extends GameComponent {
   }
 
   // move method
-  public void move() { // Logic for movement
+  public void move(Pacman game) { // Logic for movement
     // check if at intersection and if not moves in direction
+    checkCollision(game);
+    if (!alive) {
+      return;
+    }
     if (!map.checkIntersectionCollision(gLoc)) {
       doMove();
     } else {
@@ -98,7 +102,19 @@ public abstract class Ghost extends GameComponent {
 
   // checks if the ghost would be colliding with a wall after moving
   public boolean checkCollision() {
-    return map.checkPathCollision(gLoc, speed);
+    return map.pathCollision(this);
+  }
+
+  public void checkCollision(Pacman game) {
+    if (!alive) {
+      isDead();
+    } else if (collision(game.getPlayer())) { // checks if the entity is colliding with any of the ghosts
+      if (game.getConsumptionMode()) {
+        death(game);
+      } else {
+        game.setLevel(2);
+      }
+    }
   }
 
   // checks if the ghost is colliding witht he player
@@ -108,14 +124,8 @@ public abstract class Ghost extends GameComponent {
 
   // checks if the ghost is alive and if not, moves it to the ghost box and counts
   // down respawn timer
-  public void ghostDeath() {
+  public void isDead() {
     if (alive == false) {
-      x = 220;
-      y = 210;
-      // gLoc[0] = 220;
-      // gLoc[1] = 240;
-      // gLoc[2] = 210;
-      // gLoc[3] = 230;
       deathTimer--;
       // if the timer is up, the ghost respawns
       if (deathTimer == 0) {
@@ -123,10 +133,6 @@ public abstract class Ghost extends GameComponent {
         alive = true;
         x = 220;
         y = 180;
-        // gLoc[0] = 11 * 20;
-        // gLoc[1] = 12 * 20;
-        // gLoc[2] = 180;
-        // gLoc[3] = 200;
         deathTimer = 500;
       }
     }
@@ -140,6 +146,10 @@ public abstract class Ghost extends GameComponent {
       p.updateScore();
     }
     this.alive = false;
+  }
+
+  public boolean getAlive() {
+    return alive;
   }
 
   abstract Image getImage();

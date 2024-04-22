@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import Pacman.MapComponents.Intersection;
 import Pacman.MapComponents.Path;
 import Pacman.MapComponents.PointPellet;
 import Pacman.Panels.EndPanel;
@@ -19,6 +20,7 @@ import Pacman.Panels.MapPanel;
 import Pacman.Panels.StartScreen;
 import Pacman.Panels.TopPanel;
 
+// TODO Make pellets game components but not map components so I can use one collision thing for all map components and all game components
 public class Pacman extends JPanel implements KeyListener {
     private int score = 0;
     private Player player;
@@ -27,11 +29,14 @@ public class Pacman extends JPanel implements KeyListener {
     private JPanel canvas;
     private JPanel displayPanel;
     private ArrayList<Path> paths = new ArrayList<>();
+    private ArrayList<Intersection> intersections = new ArrayList<>();
     private boolean consumptionMode = false;
     private int consumptionTime = 500; // length of time that consumption mode lasts
     private int consumptionTimer = consumptionTime;
     private MusicManager musicManager;
     private Pacman game = this;
+    private double bufferDirection = 0.0;
+    private double direction = 0.0;
 
     /**
      * Main method that sets up the frame and starts the game
@@ -74,7 +79,8 @@ public class Pacman extends JPanel implements KeyListener {
     // game timer
     private class TimerCallback implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            MapPanel mapPanel = (MapPanel) displayPanel;
+            displayPanel.repaint();
+
             // Checks if startup music has been played and if not plays it
             if (!musicManager.playedStartup) {
                 musicManager.playGameSounds();
@@ -89,21 +95,13 @@ public class Pacman extends JPanel implements KeyListener {
                 }
             }
 
-            // repaints the map
-            displayPanel.repaint();
+            MapPanel mapPanel = (MapPanel) displayPanel;
 
-            // checks if player is colliding with a pellet and if so eats them
-            pelletCollision();
-
-            // does player movement();
             playerMovement();
 
             for (Ghost g : mapPanel.getGhosts()) {
-                g.move();
+                g.move(game);
             }
-            mapPanel.ghostDeathStuff();
-            // check if player collides with a ghost
-            mapPanel.checkGhostCollision(game);
         }
     }
 
@@ -130,40 +128,36 @@ public class Pacman extends JPanel implements KeyListener {
         canvas.revalidate();
     }
 
-    // starts level 0 including starting the music and making the display panel a
-    // start screen
-
+    /**
+     * starts level 0 including starting the music and making the display panel a
+     * start screen
+     */
     private void startLevel0() {
-        musicManager.playStartScreenSounds();
-
-        // makes the display panel a new start screen
-        displayPanel = new StartScreen();
-
-        // sets top panel state to 0
-        top.setPanelState(0);
+        musicManager.playStartScreenSounds();// plays the start screen music
+        displayPanel = new StartScreen();// makes the display panel a new start screen
+        top.setPanelState(0); // sets top panel state to 0
     }
 
-    // starts level 1 including generating the map, player, and ghosts as well as
-    // starting the music
+    /**
+     * starts level 1 including generating the map, player, and ghosts as well as
+     * starting the music
+     */
     private void startLevel1() {
         musicManager.playGameSounds();
+
         // makes the display panel a new map panel
         MapPanel mapPanel = new MapPanel(this);
         displayPanel = mapPanel;
 
-        // sets top panel state to 1
-        top.setPanelState(1);
+        top.setPanelState(1); // sets top panel state to 1
 
         // gets the paths from the map panel, used in checking if player is on a path
         paths = mapPanel.getPaths();
+        intersections = mapPanel.getIntersections();
 
         // makes a new player and adds it to the map panel
         player = new Player(160, 20, 20, 1);
-
         mapPanel.addPlayer(player);
-
-        // makes new ghosts and adds them to the map panel
-        mapPanel.createGhosts();
 
         // starts timer since it is now being used
         if (timer.isRunning() == false) {
@@ -174,27 +168,16 @@ public class Pacman extends JPanel implements KeyListener {
     // starts level 2 including making the display panel an end screen
     private void startLevel2() {
         timer.stop();
-        musicManager.playDeathSounds();
-
-        // makes the display panel a new end panel
-        displayPanel = new EndPanel(this);
-
-        // sets top panel state to 2
-        top.setPanelState(2);
+        musicManager.playDeathSounds(); // plays the death music
+        displayPanel = new EndPanel(this); // makes the display panel a new end panel
+        top.setPanelState(2); // sets top panel state to 2
     }
 
     // detects if the player is on a path
-    public boolean checkPathCollision(int[] entityPosision, int[] entitySpeed) {// gets coordinates of player and speed
-        // sets the x and y coordinates to where they would be after moving
-        int x1 = entityPosision[0] + entitySpeed[0];
-        int x2 = entityPosision[1] + entitySpeed[0];
-        int y1 = entityPosision[2] + entitySpeed[1];
-        int y2 = entityPosision[3] + entitySpeed[1];
-
+    public boolean pathCollision(GameComponent c) {
         // checks if after a player moves they will be on a path
         for (Path p : paths) {
-            if (x1 >= p.getX1() && x2 <= p.getX2() && y1 >= p.getY1() && y2 <= p.getY2()) {
-                // if player will be on a path after moving returns true
+            if (p.collision(c)) {
                 return true;
             }
         }
@@ -202,18 +185,18 @@ public class Pacman extends JPanel implements KeyListener {
         return false;
     }
 
-    public boolean checkCollision(GameComponent c1, GameComponent c2) {
-        int distance = c1.getRadius() + c2.getRadius();
-        int dx = c1.getX() - c2.getX();
-        int dy = c1.getY() - c2.getY();
-        if (dx * dx + dy * dy < distance * distance) {
-            return true;
-        } else {
-            return false;
+    public boolean intersectionCollision(GameComponent c) {
+        for (Intersection i : intersections) {
+            if (i.collision(c)) {
+                return true;
+            }
         }
+        return false;
     }
 
-    // checks if player is colliding with pellets
+    /**
+     * checks if the player is colliding with any pellets and if so consumes them
+     */
     public void pelletCollision() {
         ArrayList<PointPellet> pellets = ((MapPanel) displayPanel).getPellets();
         for (int i = 0; i < pellets.size(); i++) {
@@ -255,51 +238,57 @@ public class Pacman extends JPanel implements KeyListener {
         this.score = score;
     }
 
+    // controls player movement
+    public void playerMovement() {
+        pelletCollision();
+        double currentDirection = direction;
+        if (intersectionCollision(player)) {
+            player.updateSpeed(bufferDirection);
+            player.move();
+            if (pathCheck(player) == false) {
+                player.undoMove();
+                player.updateSpeed(currentDirection);
+            }
+        } else {
+            if (bufferDirection)
+                player.move();
+        }
+
+    }
+
+    public boolean pathCheck(GameComponent c) {
+        GameComponent temp = new GameComponent();
+        int dx = player.getDx();
+        int dy = player.getDy();
+
+        if (dx == 0)
+            dx = 1;
+        if (dy == 0)
+            dy = 1;
+
+        temp.setX(c.getX() + 2 * c.getRadius() * player.getDx());
+        temp.setY(c.getY() + 2 * c.getRadius() * player.getDy());
+        return pathCollision(temp);
+    }
+
     // Key handling
     public void keyPressed(KeyEvent e) {
         // Change direction at the next turn
-        String direction = "";
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                direction = "up";
+                bufferDirection = 0.5;
                 break;
             case KeyEvent.VK_DOWN:
-                direction = "down";
+                bufferDirection = 2;
                 break;
             case KeyEvent.VK_LEFT:
-                direction = "left";
+                bufferDirection = 0.25;
                 break;
             case KeyEvent.VK_RIGHT:
             default:
-                direction = "right";
+                bufferDirection = 4;
         }
-        player.setBufferDirection(direction);
-    }
 
-    // controls player movement
-    public void playerMovement() {
-        // gets the buffer direction and current direction
-        String currentDirection = player.getDirection();
-        String direction = player.getBufferDirection();
-
-        // sets the direction to the buffer direction if it is not empty
-        // and checks if the player can move in that direction
-        // and if it can moves the player
-
-        player.setDirection(direction);
-        if (checkPathCollision(player.getCoordinates(), player.getSpeed()) && !direction.equals("")) {
-            player.move();
-            player.setBufferDirection("");
-        } else {
-            // if the player cannot move in the buffer direction it sets the direction to
-            // the current direction
-            // and checks if the player can move in that direction
-            // and if it can moves the player
-            player.setDirection(currentDirection);
-            if (checkPathCollision(player.getCoordinates(), player.getSpeed())) {
-                player.move();
-            }
-        }
     }
 
     public void keyTyped(KeyEvent e) {
@@ -307,4 +296,8 @@ public class Pacman extends JPanel implements KeyListener {
 
     public void keyReleased(KeyEvent e) {
     }// not used
+
+    public Player getPlayer() {
+        return player;
+    }
 }

@@ -1,7 +1,9 @@
 package Pacman.MapComponents;
 
-import java.awt.Graphics;
 import java.awt.Color;
+import java.awt.Graphics;
+
+import Pacman.MainComponents.GameComponent;
 
 /* 
 parent class for path map components
@@ -16,8 +18,10 @@ public class Path extends MapComponent {
     protected int width, height, rectLength;
 
     // constructor for path
-    public Path(int x1, int y1, int rectLength) {
-        super(x1, y1);
+    public Path(int x, int y, int rectLength) {
+        super(x, y);
+        this.x = x * unitWidth - radius;
+        this.y = y * unitWidth - radius;
         this.rectLength = rectLength;
     }
 
@@ -30,6 +34,18 @@ public class Path extends MapComponent {
     public void draw(Graphics g) {
         g.setColor(Color.GRAY);
         g.fillRect(x1, y1, width, height);
+    }
+
+    @Override
+    public boolean collision(GameComponent c) {
+        int cx1 = c.getX() - c.getRadius();
+        int cx2 = c.getX() + c.getRadius();
+        if (cx1 >= x && cx2 <= x + width && c.getY() - c.getRadius() >= y1
+                && c.getY() + c.getRadius() <= y1 + height) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

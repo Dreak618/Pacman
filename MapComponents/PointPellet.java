@@ -21,6 +21,7 @@ public class PointPellet extends MapComponent {
         this.radius = width / 2;
         this.x2 = x1 + width;
         this.y2 = y1 + width;
+
     }
 
     // draw the pellet

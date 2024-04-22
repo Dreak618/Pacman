@@ -1,6 +1,7 @@
 package Pacman.MainComponents;
 
 import java.awt.Graphics;
+import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
@@ -10,7 +11,8 @@ public class Player extends GameComponent {
     private ImageIcon pacLeft = new ImageIcon("Pacman/Assets/Player/pacLeft.png"), resizedLeft;
     private ImageIcon pacUp = new ImageIcon("Pacman/Assets/Player/pacUp.png"), resizedUp;
     private ImageIcon pacDown = new ImageIcon("Pacman/Assets/Player/pacDown.png"), resizedDown;
-    private int x1, x2, y1, y2, speed, deltaX, deltaY, tWidth, tempDeltaX, tempDeltaY;
+    private int x1, x2, y1, y2, speed, deltaX, deltaY, tWidth;
+    private int dx, dy;
     private String direction = "";
     private String bufferDirection = "";
 
@@ -24,6 +26,8 @@ public class Player extends GameComponent {
         update();
         tWidth = width;
         this.speed = speed;
+        dx = 0;
+        dy = 0;
         deltaX = 0;
         deltaY = 0;
         resizedDown = resizeImage(pacDown);
@@ -59,24 +63,32 @@ public class Player extends GameComponent {
         return bufferDirection;
     }
 
+    public int getDx() {
+        return dx;
+    }
+
+    public int getDy() {
+        return dy;
+    }
+
     // updates speed based on direction
-    public void updateSpeed(String direction) {
+    public void updateSpeed(double direction) {
         switch (direction) {
-            case "up":
+            case 0.5:
                 // System.out.println("up");
                 deltaY = -speed;
                 deltaX = 0;
                 break;
-            case "down":
+            case 2.0:
                 deltaY = speed;
                 deltaX = 0;
                 break;
-            case "left":
+            case 0.25:
                 // System.out.println("left");
                 deltaX = -speed;
                 deltaY = 0;
                 break;
-            case "right":
+            case 4.0:
                 deltaX = speed;
                 deltaY = 0;
                 break;
@@ -88,12 +100,16 @@ public class Player extends GameComponent {
 
     // moves player
     public void move() {
-        tempDeltaX = deltaX;
-        tempDeltaY = deltaY;
-        x1 += tempDeltaX;
-        y1 += tempDeltaY;
-        update();
-        move2();
+        // tempDeltaX = deltaX;
+        // tempDeltaY = deltaY;
+        dx = deltaX;
+        dy = deltaY;
+        x += dx;
+        y += dy;
+        // x1 += tempDeltaX;
+        // y1 += tempDeltaY;
+        // update();
+        // move2();
     }
 
     public void move2() {
@@ -107,6 +123,11 @@ public class Player extends GameComponent {
         y2 = y1 + tWidth;
     }
 
+    public void undoMove() {
+        x -= dx;
+        y -= dy;
+    }
+
     // gives player coordinates
     public int[] getCoordinates() {
         return new int[] { x1, x2, y1, y2 };
@@ -114,31 +135,28 @@ public class Player extends GameComponent {
 
     // gives player speed
     public int[] getSpeed() {
-        return new int[] { deltaX, deltaY };
+        return new int[] { dx, dy };
     }
 
     // draws player
     public void draw(Graphics g) {
-        if (resizedRight == null) {
-            System.out.println("null");
-        } else {
-            switch (direction) {
-                case "up":
-                    g.drawImage(resizedUp.getImage(), x1, y1, this);
-                    break;
-                case "down":
-                    g.drawImage(resizedDown.getImage(), x1, y1, this);
-                    break;
-                case "left":
-                    g.drawImage(resizedLeft.getImage(), x1, y1, this);
-                    break;
-                case "right":
-                    g.drawImage(resizedRight.getImage(), x1, y1, this);
-                    break;
-                default:
-                    g.drawImage(resizedRight.getImage(), x1, y1, this);
-            }
+        Image image;
+        switch (direction) {
+            case "up":
+                image = resizedUp.getImage();
+                break;
+            case "down":
+                image = resizedDown.getImage();
+                break;
+            case "left":
+                image = resizedLeft.getImage();
+                break;
+            case "right":
+                image = resizedRight.getImage();
+                break;
+            default:
+                image = resizedRight.getImage();
         }
+        g.drawImage(image, x - radius, y - radius, this);
     }
-
 }

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
+import Pacman.MainComponents.GameComponent;
 import Pacman.MainComponents.Ghost;
 import Pacman.MainComponents.GhostBlue;
 import Pacman.MainComponents.GhostOrange;
@@ -51,21 +52,18 @@ public class MapPanel extends JPanel {
         for (Path path : paths) {
             path.draw(g);
         }
-        // draws all of the intersections
-        // used for debugging
-        // for (Intersection intersection : intersections) {
-        // intersection.draw(g);
-        // }
+        // draws all of the intersections used for debugging
+        for (Intersection intersection : intersections) {
+            intersection.draw(g);
+        }
+
         for (PointPellet pellet : pellets) {
             pellet.draw(g);
         }
 
-        // draws the player
         player.draw(g);
-
-        // draws the ghosts
-        for (Ghost c : ghosts) {
-            c.draw(g);
+        for (Ghost ghost : ghosts) {
+            ghost.draw(g);
         }
     }
 
@@ -101,25 +99,6 @@ public class MapPanel extends JPanel {
         ghosts.add(new GhostOrange(260, 440, this)); // clyde
     }
 
-    // adds pellets to the map
-    public void addPellets() {
-        for (Path path : paths) {
-            // adds pellets shifted by i in the x or y direction depending on type of path
-            // i goes from 0 to the length of the path
-            for (int i = 1; i < path.getLength() - 1; i++) {
-                if (path instanceof HorizontalPath) { // checks if it is a horizontal path
-                    createPellet(path.getX1() / path.getWidth() + i, path.getY1() / path.getWidth());
-                } else if (path instanceof VerticalPath) { // checks if it is a vertical path
-                    createPellet(path.getX1() / path.getWidth(), path.getY1() / path.getWidth() + i);
-                }
-            }
-        }
-        // adds pellets at all intersections
-        for (Intersection i : intersections) {
-            pellets.add(new PointPellet(i.getX1() / i.getWidth(), i.getY1() / i.getWidth()));
-        }
-    }
-
     // creates a pellet at the given coordinates
     public void createPellet(int x, int y) {
         // if conditions are met a power pellet is created
@@ -137,8 +116,8 @@ public class MapPanel extends JPanel {
         pellets.remove(p);
     }
 
-    public boolean checkPathCollision(int[] entityPosision, int[] entitySpeed) {
-        return game.checkPathCollision(entityPosision, entitySpeed);
+    public boolean pathCollision(GameComponent c) {
+        return game.pathCollision(c);
     }
 
     // checks if something is in an intersection, is used to movement logic
@@ -154,29 +133,6 @@ public class MapPanel extends JPanel {
         }
         // if the entity is not in any intersections it returns false
         return false;
-    }
-
-    // checks if player is colliding with a ghost and returns true if it is
-    public boolean checkGhostCollision(Pacman p) {
-        boolean ghostCollision = false;
-        for (Ghost g : ghosts) {
-            // checks if the entity is colliding with any of the ghosts
-            if (player.collision(g)) {
-                if (p.getConsumptionMode()) {
-                    g.death(p);
-                } else {
-                    p.setLevel(2);
-                }
-                break;
-            }
-        }
-        return ghostCollision;
-    }
-
-    public void ghostDeathStuff() {
-        for (Ghost g : ghosts) {
-            g.ghostDeath();
-        }
     }
 
     public boolean getConsumptionMode() {
@@ -249,5 +205,24 @@ public class MapPanel extends JPanel {
         intersections.add(new Intersection(5, 18));
         intersections.add(new Intersection(5, 22));
         intersections.add(new Intersection(19, 22));
+    }
+
+    // adds pellets to the map
+    public void addPellets() {
+        for (Path path : paths) {
+            // adds pellets shifted by i in the x or y direction depending on type of path
+            // i goes from 0 to the length of the path
+            for (int i = 1; i < path.getLength() - 1; i++) {
+                if (path instanceof HorizontalPath) { // checks if it is a horizontal path
+                    createPellet(path.getX1() / path.getWidth() + i, path.getY1() / path.getWidth());
+                } else if (path instanceof VerticalPath) { // checks if it is a vertical path
+                    createPellet(path.getX1() / path.getWidth(), path.getY1() / path.getWidth() + i);
+                }
+            }
+        }
+        // adds pellets at all intersections
+        for (Intersection i : intersections) {
+            pellets.add(new PointPellet(i.getX1() / i.getWidth(), i.getY1() / i.getWidth()));
+        }
     }
 }
