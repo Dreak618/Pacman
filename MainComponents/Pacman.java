@@ -12,9 +12,9 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 
+import Pacman.MapComponents.MapComponent;
 import Pacman.MapComponents.Path;
 import Pacman.MapComponents.PointPellet;
-import Pacman.MapComponents.PowerPellet;
 import Pacman.Panels.EndPanel;
 import Pacman.Panels.MapPanel;
 import Pacman.Panels.StartScreen;
@@ -23,7 +23,7 @@ import Pacman.Panels.TopPanel;
 public class Pacman extends JPanel implements KeyListener {
     private int score = 0;
     private Player player;
-    protected Timer timer = new Timer(20, new TimerCallback());// timer for the game
+    protected Timer timer;// timer for the game
     private TopPanel top;
     private JPanel canvas;
     private JPanel displayPanel;
@@ -33,98 +33,86 @@ public class Pacman extends JPanel implements KeyListener {
     private int consumptionTimer = consumptionTime;
     private MusicManager musicManager;
 
+    /**
+     * Main method that sets up the frame and starts the game
+     */
     public static void main(String[] args) {
-        // creates new frame
-        JFrame frame = new JFrame("Pacman 2");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(500, 600));
-        frame.setResizable(false);
-        frame.pack();
-
-        // creates new instance of the game
-        new Pacman(frame);
-        frame.setVisible(true);
-
+        new Pacman();
     }
 
-    public Pacman(JFrame f) {
+    /**
+     * Constructor for the Pacman class:
+     * Sets up the music manager, the timer, the key listener, the canvas, and the
+     * top panel
+     * 
+     * Calls the setLevel method to start the game by setting the display panel to a
+     * start screen
+     * 
+     * Canvas contains a top panel and a display panel
+     * - Top panel contains the scoreboard and some buttons
+     * - Display panel is either a start screen, map panel, or end panel
+     */
+    public Pacman() {
+        JFrame f = new JFrame("Pacman 2");
+        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        f.setPreferredSize(new Dimension(500, 600));
+        f.setResizable(false);
+        f.pack();
         musicManager = new MusicManager();
-        f.addKeyListener(this);
-        f.setFocusable(true);
-
-        // sets up the canvas the game is on
+        timer = new Timer(20, new TimerCallback());
+        top = new TopPanel(this);
         canvas = new JPanel();
         canvas.setLayout(new BorderLayout());
-
-        // creates and adds the top panel to the canvas which will include the
-        // scoreboard
-        top = new TopPanel(this);
         canvas.add(top, BorderLayout.NORTH);
-
-        // makes a new display panel of a certain type depending on level and adds it to
-        // the canvas
         setLevel(0);
-
-        // adds canvas to frame
+        f.addKeyListener(this);
+        f.setFocusable(true);
         f.add(canvas);
-
+        f.setVisible(true);
     }
 
     // game timer
     private class TimerCallback implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            MapPanel panel = (MapPanel) displayPanel;
-            // checks if currently viewing the map panel
-
+            MapPanel mapPanel = (MapPanel) displayPanel;
+            // Checks if startup music has been played and if not plays it
             if (!musicManager.playedStartup) {
                 musicManager.playGameSounds();
             }
+
             // checks if the player is in consumption mode and if so counts down the timer
             if (consumptionMode) {
                 consumptionTimer--;
                 if (consumptionTimer == 0) {
                     consumptionMode = false;
-                    consumptionTimer = consumptionTime;
                     top.setConsumptionMode(consumptionMode);
                 }
             }
+
             // repaints the map
             displayPanel.repaint();
 
             // checks if player is colliding with a pellet and if so eats them
-            checkPelletCollision(player.getPlayerCoordinates());
+            pelletCollision(player.getCoordinates());
 
             // does player movement();
             playerMovement();
 
-            for (Ghost g : ((MapPanel) displayPanel).getGhosts()) {
+            for (Ghost g : mapPanel.getGhosts()) {
                 g.move();
             }
-            ((MapPanel) displayPanel).ghostDeathStuff();
+            mapPanel.ghostDeathStuff();
             // check if player collides with a ghost
-            if (((MapPanel) displayPanel).checkGhostCollision(player.getPlayerCoordinates())) {
+            if (mapPanel.checkGhostCollision(player.getCoordinates())) {
                 // if in consumption mode eats ghost otherwise dies
                 if (consumptionMode) {
                     score += 200;
                     top.setScore(score);
-                    // remove ghost or stuff NYI
                 } else {
                     setLevel(2);
                 }
             }
         }
-    }
-
-    public void level0Callback() {
-
-    }
-
-    public void level1Callback() {
-
-    }
-
-    public void level2Callback() {
-
     }
 
     // sets the display type of the display panel depending on the level
@@ -152,6 +140,7 @@ public class Pacman extends JPanel implements KeyListener {
 
     // starts level 0 including starting the music and making the display panel a
     // start screen
+
     private void startLevel0() {
         musicManager.playStartScreenSounds();
 
@@ -221,54 +210,52 @@ public class Pacman extends JPanel implements KeyListener {
         return false;
     }
 
-    // checks if player is colliding with pellets
-    public void checkPelletCollision(int[] playerPosition) {
-        // and if so removes them and adds to
-        // makes an arraylist of al pellets
-        ArrayList<PointPellet> pellets = new ArrayList<>();
-        pellets = ((MapPanel) displayPanel).getPellets();
-
-        // gets the coordinates of the player
-        int x1 = playerPosition[0];
-        int x2 = playerPosition[1];
-        int y1 = playerPosition[2];
-        int y2 = playerPosition[3];
-        int pW = x2 - x1;
-
-        // checks if player is colliding with a pellet
-        if (pellets.size() > 0) {
-            for (PointPellet p : pellets) {
-                int w = p.getWidth();
-                // checks if the player is colliding with the pellet
-                if ((x1 + pW >= p.getX1()
-                        && x2 - pW <= p.getX2()
-                        && y1 > p.getY1() - w
-                        && y2 <= p.getY2() + w)
-                        || (x1 >= p.getX1() - w
-                                && x2 <= p.getX2() + w
-                                && y1 + pW >= p.getY1()
-                                && y2 - pW <= p.getY2())) {
-
-                    // if the pellet is a power pellet sets consumption mode to true and increases
-                    // score
-                    if (p instanceof PowerPellet) {
-                        score += 50;
-                        consumptionMode = true;
-                        top.setConsumptionMode(consumptionMode);
-                    } else {// if the pellet is a point pellet increases score
-                        score += 10;
-                        top.setScore(score);
-                    }
-
-                    // removes the pellet from the map (player eats them)
-                    ((MapPanel) displayPanel).removePellet(p);
-                    break;
-                }
-            }
+    public boolean checkCollision(MapComponent c1, Player c2) {
+        int distance = c1.getRadius() + c2.getRadius();
+        int dx = c1.getX() - c2.getX();
+        int dy = c1.getY() - c2.getY();
+        if (dx * dx + dy * dy < distance * distance) {
+            return true;
         } else {
-            // if there are no pellets left goes to next level (adds new pellets to map)
+            return false;
+        }
+    }
+
+    public boolean checkCollision(Player c1, Ghost c2) {
+        int distance = c1.getRadius() + c2.getRadius();
+        int dx = c1.getX() - c2.getX();
+        int dy = c1.getY() - c2.getY();
+        if (dx * dx + dy * dy < distance * distance) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // checks if player is colliding with pellets
+    public void pelletCollision(int[] playerPosition) {
+        ArrayList<PointPellet> pellets = ((MapPanel) displayPanel).getPellets();
+        if (pellets == null) {
+            return;
+        }
+        for (int i = 0; i < pellets.size(); i++) {
+            PointPellet p = pellets.get(i);
+            if (checkCollision(p, player)) {
+                score += p.consume(this);
+                pellets.remove(i);
+                top.setScore(score);
+            }
+        }
+
+        if (pellets.size() == 0) {
             setLevel(1);
         }
+    }
+
+    public void toggleConsupmtion() {
+        consumptionTimer = consumptionTime;
+        consumptionMode = true;
+        top.setConsumptionMode(consumptionMode);
     }
 
     public boolean getConsumptionMode() {
@@ -285,7 +272,6 @@ public class Pacman extends JPanel implements KeyListener {
 
     // Key handling
     public void keyPressed(KeyEvent e) {
-        // if(displayPanel instanceof MapPanel){
         // Change direction at the next turn
         String direction = "";
         switch (e.getKeyCode()) {
@@ -316,7 +302,7 @@ public class Pacman extends JPanel implements KeyListener {
         // and if it can moves the player
 
         player.setDirection(direction);
-        if (checkPathCollision(player.getPlayerCoordinates(), player.getPlayerSpeed()) && !direction.equals("")) {
+        if (checkPathCollision(player.getCoordinates(), player.getSpeed()) && !direction.equals("")) {
             player.move();
             player.setBufferDirection("");
         } else {
@@ -325,7 +311,7 @@ public class Pacman extends JPanel implements KeyListener {
             // and checks if the player can move in that direction
             // and if it can moves the player
             player.setDirection(currentDirection);
-            if (checkPathCollision(player.getPlayerCoordinates(), player.getPlayerSpeed())) {
+            if (checkPathCollision(player.getCoordinates(), player.getSpeed())) {
                 player.move();
             }
         }

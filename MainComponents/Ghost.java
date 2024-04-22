@@ -9,63 +9,49 @@ import javax.swing.JPanel;
 
 import Pacman.Panels.MapPanel;
 
-public class Ghost extends JPanel {
+public abstract class Ghost extends JPanel {
 
   private Random RNJesus = new Random(4);
   private int width = 20;
-  private MapPanel map;
-  private int[] gLoc = new int[4]; // ghost location coords
-  private int direction;
+  protected int radius;
+  protected MapPanel map;
+  protected int[] gLoc = new int[4]; // ghost location coords
+  protected int direction;
   private int[] speed = new int[] { 0, 0 }; // ghost movement speed (can adjust)
   private boolean alive = true;
   private int deathTimer = 500;
-  private String name;
-  private ImageIcon red = new ImageIcon("Pacman/Assets/Ghosts/red_ghost.png"), resizedRed;
-  private ImageIcon blue = new ImageIcon("Pacman/Assets/Ghosts/blue_ghost.png"), resizedBlue;
-  private ImageIcon pink = new ImageIcon("Pacman/Assets/Ghosts/pink_ghost.png"), resizedPink;
-  private ImageIcon orange = new ImageIcon("Pacman/Assets/Ghosts/orange_ghost.png"), resizedOrange;
+
   private ImageIcon edible = new ImageIcon("Pacman/Assets/Ghosts/edible_ghost.png"), resizedEdible;
-  private ImageIcon dead = new ImageIcon("Pacman/Assets/Ghosts/dead_ghost.png"), resizedDead;
+  protected ImageIcon dead = new ImageIcon("Pacman/Assets/Ghosts/dead_ghost.png"), resizedDead;
 
   // Constructor
-  public Ghost(String name, int x1, int x2, int y1, int y2, MapPanel map) {
+  public Ghost(int x1, int x2, int y1, int y2, MapPanel map) {
     this.map = map;
-    this.name = name;
     this.gLoc[0] = x1;
     this.gLoc[1] = x2;
     this.gLoc[2] = y1;
     this.gLoc[3] = y2;
     this.direction = 0;
-    resizedBlue = resizeImage(blue);
-    resizedRed = resizeImage(red);
-    resizedPink = resizeImage(pink);
-    resizedOrange = resizeImage(orange);
+    this.radius = 10;// TODO add radius
+
     resizedEdible = resizeImage(edible);
     resizedDead = resizeImage(dead);
   }
 
   // Draws the ghost
-  public void draw(Graphics g, Ghost c) {
-    if (!c.alive) {
-      g.drawImage(resizedDead.getImage(), c.gLoc[0], c.gLoc[2], this);
+  public void draw(Graphics g) {
+    if (!alive) {
+      g.drawImage(resizedDead.getImage(), gLoc[0], gLoc[2], this);
+    } else if (map.getConsumptionMode()) {
+      g.drawImage(resizedEdible.getImage(), gLoc[0], gLoc[2], this);
     } else {
-      if (map.getConsumptionMode()) {
-        g.drawImage(resizedEdible.getImage(), c.gLoc[0], c.gLoc[2], this);
-      } else {
-        if (c.name.equals("red")) {
-          g.drawImage(resizedRed.getImage(), c.gLoc[0], c.gLoc[2], this);
-        } else if (c.name.equals("blue")) {
-          g.drawImage(resizedBlue.getImage(), c.gLoc[0], c.gLoc[2], this);
-        } else if (c.name.equals("orange")) {
-          g.drawImage(resizedOrange.getImage(), c.gLoc[0], c.gLoc[2], this);
-        } else if (c.name.equals("pink")) {
-          g.drawImage(resizedPink.getImage(), c.gLoc[0], c.gLoc[2], this);
-        } else {
-        }
-      }
+      g.drawImage(getImage(), gLoc[0], gLoc[2], this);
+
     }
 
   }
+
+  abstract Image getImage();
 
   // move method
   public void move() { // Logic for movement
@@ -126,6 +112,7 @@ public class Ghost extends JPanel {
     int pY2 = playerPosition[3];
     // checks if the edges of the ghost are within the player coordinates and
     // returns true if they are
+
     if (pX1 + pWidth >= gLoc[0] && pX2 - pWidth <= gLoc[1] + width && pY1 >= gLoc[2] && pY2 <= gLoc[2] + width) {
       alive = false;
       return true;
@@ -159,9 +146,21 @@ public class Ghost extends JPanel {
     }
   }
 
-  public ImageIcon resizeImage(ImageIcon img) {
+  protected ImageIcon resizeImage(ImageIcon img) {
     Image image = img.getImage().getScaledInstance(20, 20, Image.SCALE_SMOOTH);
     ImageIcon resized = new ImageIcon(image);
     return resized;
+  }
+
+  public int getX() {
+    return gLoc[0] + radius;
+  }
+
+  public int getY() {
+    return gLoc[2] + radius;
+  }
+
+  public int getRadius() {
+    return radius;
   }
 }

@@ -1,20 +1,24 @@
 package Pacman.MapComponents;
+
 import javax.swing.JPanel;
 
 //general class for all map components
 //allows for easily moving all map components if needed and resizing them all
 public class MapComponent extends JPanel {
-    protected int unitWidth = 20;//width of each unit in the map
-    protected int x1, y1, x2, y2;
+    protected int unitWidth = 20;// width of each unit in the map
+    protected int x1, y1, x2, y2, x, y, radius;
 
-    //constructor for map components
+    // constructor for map components
     public MapComponent(int x1, int y1) {
         // x1 and y1 are the coordinates of the top left corner of the component
         this.x1 = x1 * unitWidth;
         this.y1 = y1 * unitWidth;
+        this.radius = unitWidth / 2;
+        this.x = this.x1 + radius;
+        this.y = this.y1 + radius;
     }
-   
-    //methods to get the coordinates and width of map components
+
+    // methods to get the coordinates and width of map components
     public int getX1() {
         return x1;
     }
@@ -30,7 +34,20 @@ public class MapComponent extends JPanel {
     public int getY2() {
         return y2;
     }
-    public int getWidth(){
+
+    public int getWidth() {
         return unitWidth;
+    }
+
+    public int getRadius() {
+        return this.radius;
+    }
+
+    public int getX() {
+        return this.x;
+    }
+
+    public int getY() {
+        return this.y;
     }
 }

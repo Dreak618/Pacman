@@ -3,6 +3,8 @@ package Pacman.MapComponents;
 import java.awt.Color;
 import java.awt.Graphics;
 
+import Pacman.MainComponents.Pacman;
+
 /**
  * Power pellets are the larger pellets that allow pacman to eat ghosts
  * they have different dimensions than regular pellets
@@ -24,5 +26,11 @@ public class PowerPellet extends PointPellet {
     public void draw(Graphics g) {
         g.setColor(Color.YELLOW);
         g.fillOval(x1, y1, width, width);
+    }
+
+    @Override
+    public int consume(Pacman p) {
+        p.toggleConsupmtion();
+        return 50;
     }
 }

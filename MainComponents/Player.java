@@ -15,8 +15,13 @@ public class Player extends JPanel {
     private int x1, x2, y1, y2, speed, deltaX, deltaY, tWidth, tempDeltaX, tempDeltaY;
     private String direction = "";
     private String bufferDirection = "";
+    private int x, y, radius;
 
     public Player(int x, int y, int width, int speed) { // Defines starting parameters of character
+        this.radius = width / 2;
+        this.x = x + radius;
+        this.y = y + radius;
+
         x1 = x;
         y1 = y;
         update();
@@ -91,6 +96,12 @@ public class Player extends JPanel {
         x1 += tempDeltaX;
         y1 += tempDeltaY;
         update();
+        move2();
+    }
+
+    public void move2() {
+        x = x1 + radius;
+        y = y1 + radius;
     }
 
     // updates player x2 and y2 coordinates
@@ -100,12 +111,12 @@ public class Player extends JPanel {
     }
 
     // gives player coordinates
-    public int[] getPlayerCoordinates() {
+    public int[] getCoordinates() {
         return new int[] { x1, x2, y1, y2 };
     }
 
     // gives player speed
-    public int[] getPlayerSpeed() {
+    public int[] getSpeed() {
         return new int[] { deltaX, deltaY };
     }
 
@@ -118,6 +129,7 @@ public class Player extends JPanel {
 
     // draws player
     public void draw(Graphics g) {
+
         if (resizedRight == null) {
             System.out.println("null");
         } else {
@@ -138,6 +150,17 @@ public class Player extends JPanel {
                     g.drawImage(resizedRight.getImage(), x1, y1, this);
             }
         }
+    }
 
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getRadius() {
+        return radius;
     }
 }

@@ -1,12 +1,24 @@
 package Pacman.Panels;
 
-import Pacman.MapComponents.*;
-import Pacman.MainComponents.*;
 import java.awt.Color;
-import java.util.ArrayList;
 import java.awt.Graphics;
+import java.util.ArrayList;
+
 import javax.swing.JPanel;
 
+import Pacman.MainComponents.Ghost;
+import Pacman.MainComponents.GhostBlue;
+import Pacman.MainComponents.GhostOrange;
+import Pacman.MainComponents.GhostPink;
+import Pacman.MainComponents.GhostRed;
+import Pacman.MainComponents.Pacman;
+import Pacman.MainComponents.Player;
+import Pacman.MapComponents.HorizontalPath;
+import Pacman.MapComponents.Intersection;
+import Pacman.MapComponents.Path;
+import Pacman.MapComponents.PointPellet;
+import Pacman.MapComponents.PowerPellet;
+import Pacman.MapComponents.VerticalPath;
 
 //Map panel is the panel that contains the map and visuals for when the game is in the playing state
 public class MapPanel extends JPanel {
@@ -42,7 +54,7 @@ public class MapPanel extends JPanel {
         // draws all of the intersections
         // used for debugging
         // for (Intersection intersection : intersections) {
-        //     intersection.draw(g);
+        // intersection.draw(g);
         // }
         for (PointPellet pellet : pellets) {
             pellet.draw(g);
@@ -53,7 +65,7 @@ public class MapPanel extends JPanel {
 
         // draws the ghosts
         for (Ghost c : ghosts) {
-            c.draw(g, c);
+            c.draw(g);
         }
     }
 
@@ -61,8 +73,6 @@ public class MapPanel extends JPanel {
     public void addPlayer(Player player) {
         this.player = player;
     }
-
-   
 
     // returns an array list of all paths
     public ArrayList<Path> getPaths() {
@@ -83,14 +93,97 @@ public class MapPanel extends JPanel {
         return ghosts;
     }
 
-     // creates ghosts
+    // creates ghosts
     public void createGhosts() {
-        ghosts.add(new Ghost("blue", 20, 20 + getWidth(), 20, 20 + getWidth(),this)); // inky
-        ghosts.add(new Ghost("red", 260, 260 + getWidth(), 20, 20 + getWidth(),this)); // blinky
-        ghosts.add(new Ghost("pink", 20, 20 + getWidth(), 440, 440 + getWidth(),this)); // pinky
-        ghosts.add(new Ghost("orange", 260, 260 + getWidth(), 440, 440 + getWidth(),this)); // clyde
+        ghosts.add(new GhostBlue(20, 20 + getWidth(), 20, 20 + getWidth(), this)); // inky
+        ghosts.add(new GhostRed(260, 260 + getWidth(), 20, 20 + getWidth(), this)); // blinky
+        ghosts.add(new GhostPink(20, 20 + getWidth(), 440, 440 + getWidth(), this)); // pinky
+        ghosts.add(new GhostOrange(260, 260 + getWidth(), 440, 440 + getWidth(), this)); // clyde
     }
-    
+
+    // adds pellets to the map
+    public void addPellets() {
+        for (Path path : paths) {
+            // adds pellets shifted by i in the x or y direction depending on type of path
+            // i goes from 0 to the length of the path
+            for (int i = 1; i < path.getLength() - 1; i++) {
+                if (path instanceof HorizontalPath) { // checks if it is a horizontal path
+                    createPellet(path.getX1() / path.getWidth() + i, path.getY1() / path.getWidth());
+                } else if (path instanceof VerticalPath) { // checks if it is a vertical path
+                    createPellet(path.getX1() / path.getWidth(), path.getY1() / path.getWidth() + i);
+                }
+            }
+        }
+        // adds pellets at all intersections
+        for (Intersection i : intersections) {
+            pellets.add(new PointPellet(i.getX1() / i.getWidth(), i.getY1() / i.getWidth()));
+        }
+    }
+
+    // creates a pellet at the given coordinates
+    public void createPellet(int x, int y) {
+        // if conditions are met a power pellet is created
+        if (totalPellets % 20 == 0 && totalPowerPellets < 6) {
+            pellets.add(new PowerPellet(x, y));
+            totalPowerPellets++;
+        } else { // otherwise a point pellet is created
+            pellets.add(new PointPellet(x, y));
+        }
+        totalPellets++;
+    }
+
+    // removes a pellet from the map
+    public void removePellet(PointPellet p) {
+        pellets.remove(p);
+    }
+
+    public boolean checkPathCollision(int[] entityPosision, int[] entitySpeed) {
+        return game.checkPathCollision(entityPosision, entitySpeed);
+    }
+
+    // checks if something is in an intersection, is used to movement logic
+    public boolean checkIntersectionCollision(int[] entityPosision) {
+        // gets the coordinates of the entity
+        int x1 = entityPosision[0];
+        int y1 = entityPosision[2];
+        // checks if the entity is in any of the intersections
+        for (Intersection i : intersections) {
+            if (x1 == i.getX1() && y1 == i.getY1()) {
+                return true;
+            }
+        }
+        // if the entity is not in any intersections it returns false
+        return false;
+    }
+
+    // checks if player is colliding with a ghost and returns true if it is
+    public boolean checkGhostCollision(int[] entityPosision) {
+        boolean ghostCollision = false;
+        for (Ghost c : ghosts) {
+            // checks if the entity is colliding with any of the ghosts
+            ghostCollision = c.checkPlayerCollision(entityPosision, player.getWidth());
+            if (ghostCollision) {
+                break;
+            }
+        }
+        return ghostCollision;
+    }
+
+    public void ghostDeathStuff() {
+        for (Ghost g : ghosts) {
+            g.ghostDeath();
+        }
+    }
+
+    public boolean getConsumptionMode() {
+        return game.getConsumptionMode();
+    }
+
+    public void drawGhostBox(Graphics g) {
+        g.setColor(Color.WHITE);
+        g.fillRect(200, 180, 60, 80);
+    }
+
     // adds paths to the map
     public void addPaths() {
         paths.add(new HorizontalPath(1, 1, 23));
@@ -152,82 +245,5 @@ public class MapPanel extends JPanel {
         intersections.add(new Intersection(5, 18));
         intersections.add(new Intersection(5, 22));
         intersections.add(new Intersection(19, 22));
-    }
-
-    // adds pellets to the map
-    public void addPellets() {
-        for (Path path : paths) {
-            // adds pellets shifted by i in the x or y direction depending on type of path
-            // i goes from 0 to the length of the path
-            for (int i = 1; i < path.getLength() - 1; i++) {
-                if (path instanceof HorizontalPath) { // checks if it is a horizontal path
-                    createPellet(path.getX1() / path.getWidth() + i, path.getY1() / path.getWidth());
-                } else if (path instanceof VerticalPath) { // checks if it is a vertical path
-                    createPellet(path.getX1() / path.getWidth(), path.getY1() / path.getWidth() + i);
-                }
-            }
-        }
-        // adds pellets at all intersections
-        for (Intersection i : intersections) {
-            pellets.add(new PointPellet(i.getX1() / i.getWidth(), i.getY1() / i.getWidth()));
-        }
-    }
-    // creates a pellet at the given coordinates
-    public void createPellet(int x, int y) {
-        // if conditions are met a power pellet is created
-        if (totalPellets % 20 == 0 && totalPowerPellets < 6) {
-            pellets.add(new PowerPellet(x, y));
-            totalPowerPellets++;
-        } else { // otherwise a point pellet is created
-            pellets.add(new PointPellet(x, y));
-        }
-        totalPellets++;
-    }
-
-    // removes a pellet from the map
-    public void removePellet(PointPellet p) {
-        pellets.remove(p);
-    }
-    public boolean checkPathCollision(int[] entityPosision, int[] entitySpeed){
-        return game.checkPathCollision(entityPosision, entitySpeed);  
-    }
-    // checks if something is in an intersection, is used to movement logic
-    public boolean checkIntersectionCollision(int[] entityPosision) {
-        // gets the coordinates of the entity 
-        int x1 = entityPosision[0];
-        int y1 = entityPosision[2];
-        // checks if the entity is in any of the intersections
-        for (Intersection i : intersections) {
-            if (x1 == i.getX1() && y1 == i.getY1() ) {
-                return true;
-            }
-        }
-        // if the entity is not in any intersections it returns false
-        return false;
-    }
-
-    // checks if player is colliding with a ghost and returns true if it is
-    public boolean checkGhostCollision(int[] entityPosision) {
-        boolean ghostCollision = false;
-        for (Ghost c : ghosts) {
-            // checks if the entity is colliding with any of the ghosts
-            ghostCollision = c.checkPlayerCollision(entityPosision, player.getWidth());
-            if (ghostCollision) {
-                break;
-            }
-        }
-        return ghostCollision;
-    }
-    public void ghostDeathStuff(){
-        for (Ghost g : ghosts) {
-            g.ghostDeath();
-        }
-    }
-    public boolean getConsumptionMode(){
-        return game.getConsumptionMode();
-    }
-    public void drawGhostBox(Graphics g){
-        g.setColor(Color.WHITE);
-        g.fillRect(200, 180, 60, 80);
     }
 }
