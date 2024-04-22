@@ -1,5 +1,8 @@
 package Pacman.MainComponents;
 
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 public class GameComponent extends JComponent {
@@ -26,5 +29,12 @@ public class GameComponent extends JComponent {
         } else {
             return false;
         }
+    }
+
+    // resizes image
+    public ImageIcon resizeImage(ImageIcon img) {
+        Image image = img.getImage().getScaledInstance(2 * radius, 2 * radius, Image.SCALE_SMOOTH);
+        ImageIcon resized = new ImageIcon(image);
+        return resized;
     }
 }

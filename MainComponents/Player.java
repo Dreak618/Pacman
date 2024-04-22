@@ -1,7 +1,6 @@
 package Pacman.MainComponents;
 
 import java.awt.Graphics;
-import java.awt.Image;
 
 import javax.swing.ImageIcon;
 
@@ -118,16 +117,8 @@ public class Player extends GameComponent {
         return new int[] { deltaX, deltaY };
     }
 
-    // resizes image
-    public ImageIcon resizeImage(ImageIcon img) {
-        Image image = img.getImage().getScaledInstance(tWidth, tWidth, Image.SCALE_SMOOTH);
-        ImageIcon resized = new ImageIcon(image);
-        return resized;
-    }
-
     // draws player
     public void draw(Graphics g) {
-
         if (resizedRight == null) {
             System.out.println("null");
         } else {

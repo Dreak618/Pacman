@@ -9,8 +9,8 @@ import Pacman.Panels.MapPanel;
 public class GhostBlue extends Ghost {
     private ImageIcon blue = new ImageIcon("Pacman/Assets/Ghosts/blue_ghost.png"), resizedBlue;
 
-    public GhostBlue(int x1, int x2, int y1, int y2, MapPanel map) {
-        super(x1, x2, y1, y2, map);
+    public GhostBlue(int x, int y, MapPanel map) {
+        super(x, y, map);
         resizedBlue = resizeImage(blue);
     }
 

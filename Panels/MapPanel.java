@@ -95,10 +95,10 @@ public class MapPanel extends JPanel {
 
     // creates ghosts
     public void createGhosts() {
-        ghosts.add(new GhostBlue(20, 20 + getWidth(), 20, 20 + getWidth(), this)); // inky
-        ghosts.add(new GhostRed(260, 260 + getWidth(), 20, 20 + getWidth(), this)); // blinky
-        ghosts.add(new GhostPink(20, 20 + getWidth(), 440, 440 + getWidth(), this)); // pinky
-        ghosts.add(new GhostOrange(260, 260 + getWidth(), 440, 440 + getWidth(), this)); // clyde
+        ghosts.add(new GhostBlue(20, 20, this)); // inky
+        ghosts.add(new GhostRed(260, 20, this)); // blinky
+        ghosts.add(new GhostPink(20, 440, this)); // pinky
+        ghosts.add(new GhostOrange(260, 440, this)); // clyde
     }
 
     // adds pellets to the map
@@ -157,12 +157,16 @@ public class MapPanel extends JPanel {
     }
 
     // checks if player is colliding with a ghost and returns true if it is
-    public boolean checkGhostCollision(int[] entityPosision) {
+    public boolean checkGhostCollision(Pacman p) {
         boolean ghostCollision = false;
-        for (Ghost c : ghosts) {
+        for (Ghost g : ghosts) {
             // checks if the entity is colliding with any of the ghosts
-            ghostCollision = c.checkPlayerCollision(entityPosision, player.getWidth());
-            if (ghostCollision) {
+            if (player.collision(g)) {
+                if (p.getConsumptionMode()) {
+                    g.death(p);
+                } else {
+                    p.setLevel(2);
+                }
                 break;
             }
         }

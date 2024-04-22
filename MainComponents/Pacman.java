@@ -31,6 +31,7 @@ public class Pacman extends JPanel implements KeyListener {
     private int consumptionTime = 500; // length of time that consumption mode lasts
     private int consumptionTimer = consumptionTime;
     private MusicManager musicManager;
+    private Pacman game = this;
 
     /**
      * Main method that sets up the frame and starts the game
@@ -102,15 +103,7 @@ public class Pacman extends JPanel implements KeyListener {
             }
             mapPanel.ghostDeathStuff();
             // check if player collides with a ghost
-            if (mapPanel.checkGhostCollision(player.getCoordinates())) {
-                // if in consumption mode eats ghost otherwise dies
-                if (consumptionMode) {
-                    score += 200;
-                    top.setScore(score);
-                } else {
-                    setLevel(2);
-                }
-            }
+            mapPanel.checkGhostCollision(game);
         }
     }
 
@@ -226,7 +219,7 @@ public class Pacman extends JPanel implements KeyListener {
         for (int i = 0; i < pellets.size(); i++) {
             PointPellet p = pellets.get(i);
             if (player.collision(p)) {
-                score += p.consume(this);
+                p.consume(this);
                 pellets.remove(i);
                 top.setScore(score);
             }
@@ -248,6 +241,14 @@ public class Pacman extends JPanel implements KeyListener {
 
     public int getScore() {
         return score;
+    }
+
+    public void updateScore() {
+        top.setScore(score);
+    }
+
+    public void addScore(int score) {
+        this.score += score;
     }
 
     public void setScore(int score) {

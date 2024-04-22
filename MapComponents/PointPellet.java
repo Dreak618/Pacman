@@ -29,8 +29,8 @@ public class PointPellet extends MapComponent {
         g.fillOval(x1, y1, width, width);
     }
 
-    public int consume(Pacman p) {
-        return 10;
+    public void consume(Pacman p) {
+        p.addScore(10);
     }
 
 }

@@ -30,8 +30,8 @@ public class PowerPellet extends PointPellet {
     }
 
     @Override
-    public int consume(Pacman p) {
+    public void consume(Pacman p) {
         p.toggleConsupmtion();
-        return 50;
+        p.addScore(50);
     }
 }
